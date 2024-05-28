@@ -23,7 +23,7 @@ class Fuctions():
         return xp
 
 
-class DisPy(commands.Bot):
+class CustomApp(commands.Bot):
     def __init__(self):
         super().__init__(
             command_prefix = commands.when_mentioned_or(config()["prefix"]),
@@ -54,5 +54,5 @@ class DisPy(commands.Bot):
     async def on_command_error(self, ctx: commands.Context, error) -> None:
         await ctx.reply(error, ephemeral=True)
 
-client = DisPy()
+client = CustomApp()
 client.run(os.getenv("TOKEN"))
