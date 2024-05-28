@@ -1,0 +1,21 @@
+{
+    "prefix": "!",
+    "owners": [292948682884775937],
+    "activity": "Super cool levelling system",
+    "xpBoosts": [
+        {
+            "role_id": 1243675931185512648,
+            "multiplier": 2
+        },
+        {
+            "role_id": 1243677478258606141,
+            "multiplier": 3
+        }
+    ],
+    "levelRewards": [
+        {
+            "role_id": 1245048005254578368,
+            "level": 5
+        }
+    ]
+}

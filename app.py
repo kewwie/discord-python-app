@@ -1,21 +1,40 @@
 import discord
 from discord.ext import commands
+import json
 import os
+
+import pymongo
 
 from dotenv import load_dotenv
 load_dotenv()
 
+def config():
+    with open("config.json") as file:
+        return json.load(file)
+
 intents = discord.Intents.all()
+
+class Fuctions():
+    def __init__(self, client):
+        self.client = client
+    
+    async def calculateLevelXp(self, level: int) -> int:
+        xp = (400 * level) + ((level * 250) * level)
+        return xp
+
 
 class DisPy(commands.Bot):
     def __init__(self):
         super().__init__(
-            command_prefix = commands.when_mentioned_or("!"),
-            owner_ids = [292948682884775937],
+            command_prefix = commands.when_mentioned_or(config()["prefix"]),
+            owner_ids = config()["owners"],
             intents = intents,
             status=discord.Status.online,
-            activity = discord.CustomActivity(name="Kewi is the best!"),
+            activity = discord.CustomActivity(name=config()["activity"]),
         )
+        self.database = (pymongo.MongoClient(os.getenv("MONGO_URI"))).database
+        self.functions = Fuctions(self)
+        self.config = config()
 
     async def load_cogs(self) -> None:
         for file in os.listdir("cogs"):
