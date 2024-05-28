@@ -4,6 +4,8 @@ from discord.ext import commands
 import datetime
 import random
 
+from easy_pil import Canvas, Editor, Font, load_image
+
 class Levels(commands.Cog, name="levels"):
     def __init__(self, client) -> None:
         self.client = client
@@ -16,10 +18,54 @@ class Levels(commands.Cog, name="levels"):
 
         level = levelUser["level"]
         xp = levelUser["xp"]
-        neededXp = await self.client.functions.calculateLevelXp(level + 1) - xp
+        neededXp = await self.client.functions.calculateLevelXp(level + 1) - await self.client.functions.calculateLevelXp(level)
         levelXp = xp - await self.client.functions.calculateLevelXp(level)
 
-        await ctx.reply(f"**{member.name}**\nLevel {level}\n{levelXp}/{neededXp} Xp")
+        user_data = {
+            "name": member.name,
+            "xp": levelXp,
+            "next_level_xp": neededXp,
+            "level": level,
+            "percentage": (levelXp / neededXp) * 100,
+        }
+
+        print((levelXp / neededXp) * 100)
+
+        background = Editor(Canvas((900, 300), color="#23272A"))
+        profile_image = load_image(str(member.avatar))
+        profile = Editor(profile_image).resize((150, 150)).circle_image()
+
+        poppins = Font.poppins(size=40)
+        poppins_small = Font.poppins(size=30)
+
+        card_right_shape = [(600, 0), (750, 300), (900, 300), (900, 0)]
+
+        background.polygon(card_right_shape, "#2C2F33")
+        background.paste(profile, (30, 30))
+
+        background.rectangle((30, 220), width=650, height=40, fill="#494b4f", radius=20)
+        background.bar(
+            (30, 220),
+            max_width=650,
+            height=40,
+            percentage=user_data["percentage"],
+            fill="#3db374",
+            radius=20,
+        )
+        background.text((200, 40), user_data["name"], font=poppins, color="white")
+
+        background.rectangle((200, 100), width=350, height=2, fill="#17F3F6")
+        background.text(
+            (200, 130),
+            f"Level : {user_data['level']} "
+            + f" XP : {user_data['xp']} / {user_data['next_level_xp']}",
+            font=poppins_small,
+            color="white",
+        )
+
+        file = discord.File(fp=background.image_bytes, filename="card.png")
+
+        await ctx.send(file=file)
 
     @app_commands.command(name="rank", description="Get the rank of a member")
     @app_commands.describe(
@@ -54,10 +100,12 @@ class Levels(commands.Cog, name="levels"):
         
         newXp = random.randint(45, 55)
 
-        for boost in sorted(self.client.config["xpBoosts"], key=lambda x: x["multiplier"], reverse=True):
-            if boost["role_id"] in [role.id for role in message.author.roles]:
-                newXp *= boost["multiplier"]
-                break
+        boosts = sorted(self.client.config["xpBoosts"], key=lambda x: x["multiplier"], reverse=True)
+        for role in message.author.roles:
+            for boost in boosts:
+                if boost["role_id"] == role.id:
+                    newXp *= boost["multiplier"]
+                    break
 
         levelUser = self.client.database.levels.find_one({"user_id": message.author.id})
         if levelUser:
