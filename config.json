@@ -1,7 +1,12 @@
 {
     "prefix": "!",
     "owners": [292948682884775937],
-    "activity": "Super cool levelling system",
+    "activity": "I am a bot",
+    "levelUp": {
+        "enabled": true,
+        "message": "Congratulations, {user}! You've just advanced to level {level}!",
+        "channel_id": 1243675931625918517
+    },
     "xpBoosts": [
         {
             "role_id": 1243675931185512648,

@@ -81,9 +81,10 @@ class Levels(commands.Cog, name="levels"):
             "next_level_xp": format(neededXp, ','),
             "level": level,
             "percentage": (levelXp / neededXp) * 100,
+            "color": "#6585ec"
         }
 
-        background = Editor(Canvas((900, 300), color="#23272A"))
+        background = Editor(Canvas((800, 250), color="#23272A"))
         profile_image = load_image(str(member.avatar))
         profile = Editor(profile_image).resize((150, 150)).circle_image()
 
@@ -95,18 +96,17 @@ class Levels(commands.Cog, name="levels"):
         background.polygon(card_right_shape, "#2C2F33")
         background.paste(profile, (30, 30))
 
-        background.rectangle((30, 220), width=650, height=40, fill="#494b4f", radius=20)
+        background.rectangle((30, 190), width=650, height=40, fill="#494b4f", radius=20)
         background.bar(
-            (30, 220),
+            (30, 190),
             max_width=650,
             height=40,
             percentage=user_data["percentage"],
-            fill="#3db374",
+            fill=user_data["color"],
             radius=20,
         )
-        background.text((200, 40), user_data["name"], font=poppins, color="white")
+        background.text((200, 80), user_data["name"], font=poppins, color="white")
 
-        background.rectangle((200, 100), width=350, height=2, fill="#17F3F6")
         background.text(
             (200, 130),
             f"Level : {user_data['level']} "
@@ -187,7 +187,16 @@ class Levels(commands.Cog, name="levels"):
             if (neededXp <= 0):
                 level = levelUser["level"] + 1
 
-                await message.channel.send(f"Congrats, you have reached level {level}!")
+                if self.client.config["levelUp"]["channel_id"]:
+                    channel_id = self.client.config["levelUp"]["channel_id"]
+                    channel = self.client.get_channel(channel_id)
+                    if not channel or not channel.permissions_for(channel.guild.me).send_messages:
+                        channel = message.channel
+                else:
+                    channel = message.channel
+
+                if self.client.config["levelUp"]["enabled"] and self.client.config["levelUp"]["message"] and channel.permissions_for(channel.guild.me).send_messages:
+                    await channel.send(self.client.config["levelUp"]["message"].replace("{user}", message.author.mention).replace("{level}", str(level)))   
 
                 reward = next((reward for reward in self.client.config["levelRewards"] if reward["level"] == level), None)
                 if reward:
