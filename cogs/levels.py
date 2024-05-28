@@ -11,8 +11,51 @@ class Levels(commands.Cog, name="levels"):
         self.client = client
 
     @commands.hybrid_command(
+        name="xp",
+        description="Get your current or someone else's xp",
+        aliases=["get-xp"]
+    )
+    @app_commands.describe(
+        member="The member to get the xp of",
+    )
+    async def xp(self, ctx: commands.Context, member: discord.Member = None) -> None:
+        if not member: member = ctx.author
+
+        levelUser = self.client.database.levels.find_one({"user_id": member.id})
+
+        if not levelUser:
+            await ctx.reply("This user has no xp")
+            return
+
+        await ctx.send(f"{member.mention}: {format(levelUser['xp'], ',')} Xp")
+
+    @commands.hybrid_command(
+        name="text-rank",
+        description="Get the level of a member or yourself",
+        aliases=["trank", "text-level", "tlevel"]
+    )
+    @app_commands.describe(
+        member="The member to get the xp of",
+    )
+    async def text_rank(self, ctx: commands.Context, member: discord.Member = None) -> None:
+        if not member: member = ctx.author
+
+        levelUser = self.client.database.levels.find_one({"user_id": member.id})
+
+        if not levelUser:
+            await ctx.reply("This user has no xp")
+            return
+
+        level = levelUser["level"]
+        xp = levelUser["xp"]
+        neededXp = await self.client.functions.calculateLevelXp(level + 1) - await self.client.functions.calculateLevelXp(level)
+        levelXp = xp - await self.client.functions.calculateLevelXp(level)
+
+        await ctx.reply(f"## {member.name}'s Rank\n" + f"Level : {level}\n" + f"Xp : {format(levelXp, ',')} / {format(neededXp, ',')}")
+
+    @commands.hybrid_command(
         name="rank",
-        description="Get the level of a member",
+        description="Get the level of a member or yourself",
         aliases=["level", "lvl"]
     )
     @app_commands.describe(
@@ -23,6 +66,10 @@ class Levels(commands.Cog, name="levels"):
 
         levelUser = self.client.database.levels.find_one({"user_id": member.id})
 
+        if not levelUser:
+            await ctx.reply("This user has no xp")
+            return
+
         level = levelUser["level"]
         xp = levelUser["xp"]
         neededXp = await self.client.functions.calculateLevelXp(level + 1) - await self.client.functions.calculateLevelXp(level)
@@ -30,8 +77,8 @@ class Levels(commands.Cog, name="levels"):
 
         user_data = {
             "name": member.name,
-            "xp": levelXp,
-            "next_level_xp": neededXp,
+            "xp": format(levelXp, ','),
+            "next_level_xp": format(neededXp, ','),
             "level": level,
             "percentage": (levelXp / neededXp) * 100,
         }
@@ -95,6 +142,24 @@ class Levels(commands.Cog, name="levels"):
             await ctx.send("No users found on that page")
         else:
             await ctx.send(f"## Leaderboard - Page {page}\n" + leaderboard_text)
+
+    @commands.hybrid_command(
+        name="xp-for-level",
+        with_app_command=True,
+        description="Get the rank of a member",
+        aliases=["for-level", "xfl", "xp-level"]
+    )
+    @app_commands.describe(
+        level="Which level you wanna know the xp of",
+    )
+    async def xp_for_level(self, ctx: commands.Context, level: int) -> None:
+        if level < 0:
+            await ctx.send("Level must be greater than 0")
+            return
+        
+        xp = await self.client.functions.calculateLevelXp(level)
+        await ctx.reply(f"Xp for level {level}: {format(xp, ',')}")
+    
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
