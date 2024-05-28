@@ -78,8 +78,23 @@ class Levels(commands.Cog, name="levels"):
         description="Get the rank of a member",
         aliases=["lb", "levels"]
     )
-    async def leaderboard(self, ctx: commands.Context) -> None:
-        await ctx.reply("Leaderboard Will Be Added Later", ephemeral=True)
+    @app_commands.describe(
+        page="The page you wanna view",
+    )
+    async def leaderboard(self, ctx: commands.Context, page: int = 1) -> None:
+        limit = 10
+        skip = (page - 1) * limit
+        users = self.client.database.levels.find().sort("xp", -1).skip(skip).limit(limit)
+
+        leaderboard_text = ""
+        for index, user in enumerate(users):
+            member = ctx.guild.get_member(user["user_id"])
+            leaderboard_text += f"{index+1}. **{member.name}** - Level {user['level']} ({format(user['xp'], ',')} Xp)\n"
+
+        if not leaderboard_text:
+            await ctx.send("No users found on that page")
+        else:
+            await ctx.send(f"## Leaderboard - Page {page}\n" + leaderboard_text)
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
