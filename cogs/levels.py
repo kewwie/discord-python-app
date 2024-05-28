@@ -10,7 +10,14 @@ class Levels(commands.Cog, name="levels"):
     def __init__(self, client) -> None:
         self.client = client
 
-    @commands.command(name="rank", description="Get the rank of a member", aliases=["level", "lvl"])
+    @commands.hybrid_command(
+        name="rank",
+        description="Get the level of a member",
+        aliases=["level", "lvl"]
+    )
+    @app_commands.describe(
+        member="The member to get the rank of",
+    )
     async def rank(self, ctx: commands.Context, member: discord.Member = None) -> None:
         if not member: member = ctx.author
 
@@ -28,8 +35,6 @@ class Levels(commands.Cog, name="levels"):
             "level": level,
             "percentage": (levelXp / neededXp) * 100,
         }
-
-        print((levelXp / neededXp) * 100)
 
         background = Editor(Canvas((900, 300), color="#23272A"))
         profile_image = load_image(str(member.avatar))
@@ -66,23 +71,6 @@ class Levels(commands.Cog, name="levels"):
         file = discord.File(fp=background.image_bytes, filename="card.png")
 
         await ctx.send(file=file)
-
-    @app_commands.command(name="rank", description="Get the rank of a member")
-    @app_commands.describe(
-        member="The member to get the rank of",
-    )
-    async def slashRank(self, interaction: discord.Integration, member: discord.Member = None) -> None:
-        if not member: member = interaction.user
-
-        levelUser = self.client.database.levels.find_one({"user_id": member.id})
-        
-        level = levelUser["level"]
-        xp = levelUser["xp"]
-        neededXp = await self.client.functions.calculateLevelXp(level + 1) - xp
-        levelXp = xp - await self.client.functions.calculateLevelXp(level)
-
-
-        await interaction.response.send_message(f"**{member.name}**\nLevel {level}\n{levelXp}/{neededXp} Xp")
 
     @commands.hybrid_command(
         name="leaderboard",
