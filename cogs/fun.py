@@ -40,7 +40,5 @@ class Fun(commands.Cog, name="fun"):
         ]
         await ctx.reply(f"{random.choice(responses)}")
 
-    
-
 async def setup(client) -> None:
     await client.add_cog(Fun(client))
