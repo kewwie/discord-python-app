@@ -29,13 +29,10 @@ class Levels(commands.Cog, name="levels"):
 
         await ctx.send(f"{member.mention}: {format(levelUser['xp'], ',')} Xp")
 
-    @commands.hybrid_command(
+    @commands.command(
         name="text-rank",
         description="Get the level of a member or yourself",
         aliases=["trank", "text-level", "tlevel"]
-    )
-    @app_commands.describe(
-        member="The member to get the xp of",
     )
     async def text_rank(self, ctx: commands.Context, member: discord.Member = None) -> None:
         if not member: member = ctx.author
@@ -76,12 +73,12 @@ class Levels(commands.Cog, name="levels"):
         levelXp = xp - await self.client.functions.calculateLevelXp(level)
 
         user_data = {
-            "name": member.name,
+            "name": member.name.capitalize(),
             "xp": format(levelXp, ','),
             "next_level_xp": format(neededXp, ','),
             "level": level,
             "percentage": (levelXp / neededXp) * 100,
-            "color": "#6585ec"
+            "bar_color": "#6585ec"
         }
 
         background = Editor(Canvas((800, 250), color="#23272A"))
@@ -91,29 +88,22 @@ class Levels(commands.Cog, name="levels"):
         poppins = Font.poppins(size=40)
         poppins_small = Font.poppins(size=30)
 
-        card_right_shape = [(600, 0), (750, 300), (900, 300), (900, 0)]
+        background.paste(profile, (25, 25))
 
-        background.polygon(card_right_shape, "#2C2F33")
-        background.paste(profile, (30, 30))
-
-        background.rectangle((30, 190), width=650, height=40, fill="#494b4f", radius=20)
+        background.rectangle((25, 190), width=750, height=40, fill="#494b4f", radius=20)
         background.bar(
-            (30, 190),
-            max_width=650,
+            (25, 190),
+            max_width=750,
             height=40,
             percentage=user_data["percentage"],
-            fill=user_data["color"],
+            fill=user_data["bar_color"],
             radius=20,
         )
-        background.text((200, 80), user_data["name"], font=poppins, color="white")
+        background.text((200, 55), user_data["name"], font=poppins, color="white")
 
-        background.text(
-            (200, 130),
-            f"Level : {user_data['level']} "
-            + f" XP : {user_data['xp']} / {user_data['next_level_xp']}",
-            font=poppins_small,
-            color="white",
-        )
+        background.text((200, 100), f"Level {user_data['level']}", font=poppins_small, color="white")
+
+        background.text((200, 130), f"XP {user_data['xp']} / {user_data['next_level_xp']}", font=poppins_small, color="white")
 
         file = discord.File(fp=background.image_bytes, filename="card.png")
 
