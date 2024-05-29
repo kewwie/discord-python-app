@@ -210,7 +210,6 @@ class Levels(commands.Cog, name="levels"):
                 }
             )
         else:
-            neededXp = await self.client.functions.calculateLevelXp(1)
             self.client.database.levels.insert_one({
                 "user_id": message.author.id,
                 "guild_id": message.guild.id,
