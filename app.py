@@ -49,7 +49,6 @@ class CustomApp(commands.Bot):
     async def on_ready(self) -> None:
         print(f"Logged in as {self.user}")
         await self.load_cogs()
-        await self.tree.sync()
 
     async def on_command_error(self, ctx: commands.Context, error) -> None:
         await ctx.reply(error, ephemeral=True)
