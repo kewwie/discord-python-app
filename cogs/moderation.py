@@ -15,21 +15,27 @@ class Moderation(commands.Cog, name="moderation"):
     @commands.has_permissions(manage_messages=True)
     async def timeout(self, ctx: commands.Context, member: discord.Member, time: str, *, reason: str = "No reason provided") -> None:
         if time.endswith("s"):
-            timeout_time = datetime.timedelta(seconds=int(time[:-1]))
+            time = datetime.timedelta(seconds=int(time[:-1]))
         elif time.endswith("m"):
-            timeout_time = datetime.timedelta(minutes=int(time[:-1]))
+            time = datetime.timedelta(minutes=int(time[:-1]))
         elif time.endswith("h"):
-            timeout_time = datetime.timedelta(hours=int(time[:-1]))
+            time = datetime.timedelta(hours=int(time[:-1]))
         elif time.endswith("d"):
-            timeout_time = datetime.timedelta(days=int(time[:-1]))
+            time = datetime.timedelta(days=int(time[:-1]))
+        elif time == "0":
+            time = None
         else:
             await ctx.reply("Invalid time format")
             return
         
-        if timeout_time.days > 27:
-            timeout_time = datetime.timedelta(days=27)
+        if time and time.days > 27:
+            await ctx.reply("You can't timeout for more than 27 days")
+            return
+
+        if time:
+            time = discord.utils.utcnow() + time
         
-        await member.timeout(discord.utils.utcnow() + timeout_time)
+        await member.timeout(time, reason=reason)
 
 async def setup(client) -> None:
     await client.add_cog(Moderation(client))
