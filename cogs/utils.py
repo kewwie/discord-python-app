@@ -17,9 +17,8 @@ class Utils(commands.Cog, name="utils"):
         await self.client.tree.sync()
 
         response = await ctx.reply("Reloaded all commands")
-        await asyncio.sleep(5)
-        await ctx.message.delete()
-        await response.delete()
+        await ctx.message.delete(delay=3)
+        await response.delete(delay=3)
 
     @commands.hybrid_command(
         name="members",
