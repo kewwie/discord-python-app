@@ -17,7 +17,7 @@ class Fun(commands.Cog, name="fun"):
     async def self_timeout(self, ctx: commands.Context) -> None:
         timeout_time = discord.utils.utcnow() + datetime.timedelta(seconds=30)
         try:
-            await ctx.author.timeout(timeout_time, "Self timeout")
+            await ctx.author.timeout(timeout_time, reason="Self timeout")
         except Exception:
             return
         
