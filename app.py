@@ -52,7 +52,28 @@ class CustomApp(commands.Bot):
         await self.load_cogs()
 
     async def on_command_error(self, ctx: commands.Context, error) -> None:
-        await ctx.reply(error, ephemeral=True)
+        if isinstance(error, commands.CommandNotFound):
+            return
+        
+        elif isinstance(error, commands.MissingPermissions):
+            await ctx.message.delete()
+            return
+        
+        elif isinstance(error, commands.BotMissingPermissions):
+            await ctx.reply("I don't have the required permissions to run this command", ephemeral=True)
+
+        elif isinstance(error, commands.NotOwner):
+            await ctx.message.delete()
+            return
+    
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.reply("You don't have the required permissions to run this command", ephemeral=True)
+        
+        elif isinstance(error, commands.CommandOnCooldown):
+            await ctx.reply(f"Command is on cooldown. Try again in {round(error.retry_after, 2)}s", ephemeral=True)
+        
+        else:
+            return
 
 client = CustomApp()
 client.run(os.getenv("TOKEN"))
