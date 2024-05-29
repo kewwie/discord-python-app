@@ -31,6 +31,7 @@ class CustomApp(commands.Bot):
             intents = intents,
             status=discord.Status.online,
             activity = discord.CustomActivity(name=config()["activity"]),
+            help_command=None
         )
         self.database = (pymongo.MongoClient(os.getenv("MONGO_URI"))).database
         self.functions = Fuctions(self)
