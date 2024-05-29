@@ -36,6 +36,7 @@ class Moderation(commands.Cog, name="moderation"):
             time = discord.utils.utcnow() + time
         
         await member.timeout(time, reason=reason)
+        await ctx.message.delete()
 
 async def setup(client) -> None:
     await client.add_cog(Moderation(client))
