@@ -32,7 +32,8 @@ class Levels(commands.Cog, name="levels"):
     @commands.command(
         name="text-rank",
         description="Get the level of a member or yourself",
-        aliases=["trank", "text-level", "tlevel"]
+        aliases=["trank", "text-level", "tlevel"],
+        hidden=True
     )
     async def text_rank(self, ctx: commands.Context, member: discord.Member = None) -> None:
         if not member: member = ctx.author
@@ -48,7 +49,7 @@ class Levels(commands.Cog, name="levels"):
         neededXp = await self.client.functions.calculateLevelXp(level + 1) - await self.client.functions.calculateLevelXp(level)
         levelXp = xp - await self.client.functions.calculateLevelXp(level)
 
-        await ctx.reply(f"## {member.name}'s Rank\n" + f"Level : {level}\n" + f"Xp : {format(levelXp, ',')} / {format(neededXp, ',')}")
+        await ctx.reply(f"## {member.name.capitalize()}\n" + f"Level {level}\n" + f"XP {format(levelXp, ',')} / {format(neededXp, ',')}")
 
     @commands.hybrid_command(
         name="rank",
