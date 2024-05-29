@@ -11,14 +11,13 @@ class Fun(commands.Cog, name="fun"):
     @commands.command(
         name="self-timeout",
         description="Put yourself in timeout",
-        aliases=["selftimeout"]
+        aliases=["selftimeout", "self-time", "selftime"]
     )
     @commands.bot_has_permissions(moderate_members=True)
     async def self_timeout(self, ctx: commands.Context) -> None:
-        timeout_time = datetime.datetime.now() + datetime.timedelta(seconds=30)
         timeout_time = discord.utils.utcnow() + datetime.timedelta(seconds=30)
         try:
-            await ctx.author.timeout(timeout_time)
+            await ctx.author.timeout(timeout_time, "Self timeout")
         except Exception:
             return
         
@@ -32,28 +31,14 @@ class Fun(commands.Cog, name="fun"):
     )
     async def eight_ball(self, ctx: commands.Context, question: str) -> None:
         responses = [
-            "It is certain",
-            "It is decidedly so",
-            "Without a doubt",
-            "Yes, definitely",
-            "You may rely on it",
-            "As I see it, yes",
-            "Most likely",
-            "Outlook good",
             "Yes",
-            "Signs point to yes",
-            "Reply hazy, try again",
-            "Ask again later",
-            "Better not tell you now",
-            "Cannot predict now",
-            "Concentrate and ask again",
-            "Don't count on it",
-            "My reply is no",
-            "My sources say no",
-            "Outlook not so good",
-            "Very doubtful"
+            "No",
+            "Maybe",
+            "Never",
+            "Definitely",
+            "Always"
         ]
-        await ctx.reply(f"Question: {question}\nAnswer: {random.choice(responses)}")
+        await ctx.reply(f"{random.choice(responses)}")
 
     
 
