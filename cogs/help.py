@@ -10,7 +10,6 @@ class Help(commands.HelpCommand):
             "!join-date",
             "!leaderboard",
             "!members",
-            "!ping",
             "!rank",
             "!self-timeout",
             "!xp",
