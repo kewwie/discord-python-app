@@ -14,7 +14,7 @@ class Profile(commands.Cog, name="profile"):
     @app_commands.describe(
         member="The member to get the profile of",
     )
-    async def rank(self, ctx: commands.Context, member: discord.Member = None) -> None:
+    async def profile(self, ctx: commands.Context, member: discord.Member = None) -> None:
         if not member: member = ctx.author
 
         levelUser = self.client.database.levels.find_one({"user_id": member.id})
@@ -30,13 +30,15 @@ class Profile(commands.Cog, name="profile"):
 
         profileDescription = f"**Rank:** Soon\n"
         profileDescription += f"**Level:** {level}\n"
-        profileDescription += f"**Progress:** ${levelXp} / ${neededXp}\n"
+        profileDescription += f"**Progress:** {levelXp} / {neededXp}\n"
 
         embed = discord.Embed(
-            title=f"{member.username}'s profile",
-            color=discord.Color("#2b2d31"),
+            title=f"**{member.name}**",
+            color=0x2b2d31,
             description=profileDescription
         )
+        embed.set_thumbnail(url=member.avatar.url)       
+        await ctx.send(embed=embed)
 
 async def setup(client) -> None:
     await client.add_cog(Profile(client))
