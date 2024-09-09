@@ -46,8 +46,8 @@ class Levels(commands.Cog, name="levels"):
 
         level = levelUser["level"]
         xp = levelUser["xp"]
-        neededXp = await self.client.functions.calculateLevelXp(level + 1) - await self.client.functions.calculateLevelXp(level)
-        levelXp = xp - await self.client.functions.calculateLevelXp(level)
+        neededXp = await self.client.calculateLevelXp(level + 1) - await self.client.calculateLevelXp(level)
+        levelXp = xp - await self.client.calculateLevelXp(level)
 
         await ctx.reply(f"## {member.name.capitalize()}\n" + f"Level {level}\n" + f"XP {format(levelXp, ',')} / {format(neededXp, ',')}")
 
@@ -70,8 +70,8 @@ class Levels(commands.Cog, name="levels"):
 
         level = levelUser["level"]
         xp = levelUser["xp"]
-        neededXp = await self.client.functions.calculateLevelXp(level + 1) - await self.client.functions.calculateLevelXp(level)
-        levelXp = xp - await self.client.functions.calculateLevelXp(level)
+        neededXp = await self.client.calculateLevelXp(level + 1) - await self.client.calculateLevelXp(level)
+        levelXp = xp - await self.client.calculateLevelXp(level)
 
         user_data = {
             "name": member.name.capitalize(),
@@ -148,7 +148,7 @@ class Levels(commands.Cog, name="levels"):
             await ctx.send("Level must be greater than 0")
             return
         
-        xp = await self.client.functions.calculateLevelXp(level)
+        xp = await self.client.calculateLevelXp(level)
         await ctx.reply(f"Xp for level {level}: {format(xp, ',')}")
     
 
@@ -173,7 +173,7 @@ class Levels(commands.Cog, name="levels"):
             
             level = levelUser["level"]
             xp = levelUser["xp"] + newXp
-            neededXp = await self.client.functions.calculateLevelXp(level + 1) - xp
+            neededXp = await self.client.calculateLevelXp(level + 1) - xp
 
             if (neededXp <= 0):
                 level = levelUser["level"] + 1
@@ -205,7 +205,8 @@ class Levels(commands.Cog, name="levels"):
                     "$set": {
                         "xp": xp,
                         "level": level,
-                        "last_updated": datetime.datetime.now()
+                        "last_updated": datetime.datetime.now(),
+                        "user_name": message.author.name
                     }
                 }
             )
@@ -213,6 +214,7 @@ class Levels(commands.Cog, name="levels"):
             self.client.database.levels.insert_one({
                 "user_id": message.author.id,
                 "guild_id": message.guild.id,
+                "user_name": message.author.name,
                 "xp": newXp,
                 "level": 0,
                 "last_updated": datetime.datetime.now()

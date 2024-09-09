@@ -1,6 +1,15 @@
 {
     "prefix": "!",
     "owners": [292948682884775937],
+    "permissions": [
+        {
+            "id": 1243675931185512648,
+            "staff": true,
+            "ban": true,
+            "unban": true,
+            "timeout": true
+        }
+    ],
     "activity": "I am a bot",
     "levelUp": {
         "enabled": true,

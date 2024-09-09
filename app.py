@@ -14,15 +14,6 @@ def config():
 
 intents = discord.Intents.all()
 
-class Fuctions():
-    def __init__(self, client):
-        self.client = client
-    
-    async def calculateLevelXp(self, level: int) -> int:
-        xp = (400 * level) + ((level * 250) * level)
-        return xp
-
-
 class CustomApp(commands.Bot):
     def __init__(self):
         super().__init__(
@@ -34,8 +25,11 @@ class CustomApp(commands.Bot):
             help_command=None
         )
         self.database = (pymongo.MongoClient(os.getenv("MONGO_URI"))).database
-        self.functions = Fuctions(self)
         self.config = config()
+
+    async def calculateLevelXp(self, level: int) -> int:
+        xp = (400 * level) + ((level * 250) * level)
+        return xp
 
     async def load_cogs(self) -> None:
         for file in os.listdir("cogs"):
