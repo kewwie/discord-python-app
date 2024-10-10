@@ -61,7 +61,7 @@ class CustomApp(commands.Bot):
             return
     
         elif isinstance(error, commands.CheckFailure):
-            await ctx.reply("You don't have the required permissions to run this command", ephemeral=True)
+            await ctx.reply(error, ephemeral=True)
         
         elif isinstance(error, commands.CommandOnCooldown):
             await ctx.reply(f"Command is on cooldown. Try again in {round(error.retry_after, 2)}s", ephemeral=True)

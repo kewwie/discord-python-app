@@ -21,6 +21,13 @@ class Moderation(commands.Cog, name="moderation"):
                         return True
             raise commands.CheckFailure("You don't have the required permissions to run this command")
         return commands.check(predicate)
+    
+    def is_self():
+        def predicate(ctx: commands.Context):
+            if ctx.author.id != ctx.message.mentions[0].id:
+                return True
+            raise commands.CheckFailure("You can't perform this action on yourself")
+        return commands.check(predicate)
 
     @commands.command(
         name="timeout",
@@ -29,6 +36,7 @@ class Moderation(commands.Cog, name="moderation"):
     )
     @commands.bot_has_permissions(moderate_members=True)
     @is_staff()
+    @is_self()
     async def timeout(self, ctx: commands.Context, member: discord.Member, time: str, *, reason: str = "No reason provided") -> None:
         if time.endswith("s"):
             time = datetime.timedelta(seconds=int(time[:-1]))
@@ -118,6 +126,7 @@ class Moderation(commands.Cog, name="moderation"):
     )
     @commands.bot_has_permissions(ban_members=True)
     @is_staff()
+    @is_self()
     async def ban(self, ctx: commands.Context, user: discord.User, *, reason: str = "No reason provided") -> None:
         await ctx.message.delete()
 
@@ -134,6 +143,7 @@ class Moderation(commands.Cog, name="moderation"):
     )
     @commands.bot_has_permissions(ban_members=True)
     @is_staff()
+    @is_self()
     async def unban(self, ctx: commands.Context, user: discord.User) -> None:
         await ctx.message.delete()
         await ctx.guild.unban(user.id)
