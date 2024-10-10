@@ -28,6 +28,19 @@ class Moderation(commands.Cog, name="moderation"):
                 return True
             raise commands.CheckFailure("You can't perform this action on yourself")
         return commands.check(predicate)
+    
+    def is_higher():
+        def predicate(ctx: commands.Context):
+            author_roles = [role.position for role in ctx.author.roles]
+            mentioned_roles = [role.position for role in ctx.message.mentions[0].roles]
+
+            highest_author_role = max(author_roles)
+            highest_mentioned_role = max(mentioned_roles)
+
+            if highest_author_role > highest_mentioned_role:
+                return True
+            raise commands.CheckFailure("You cannot perform this action on a user with a higher or equal role")
+        return commands.check(predicate)
 
     @commands.command(
         name="timeout",
@@ -37,6 +50,7 @@ class Moderation(commands.Cog, name="moderation"):
     @commands.bot_has_permissions(moderate_members=True)
     @is_staff()
     @is_self()
+    @is_higher()
     async def timeout(self, ctx: commands.Context, member: discord.Member, time: str, *, reason: str = "No reason provided") -> None:
         if time.endswith("s"):
             time = datetime.timedelta(seconds=int(time[:-1]))
@@ -127,6 +141,7 @@ class Moderation(commands.Cog, name="moderation"):
     @commands.bot_has_permissions(ban_members=True)
     @is_staff()
     @is_self()
+    @is_higher()
     async def ban(self, ctx: commands.Context, user: discord.User, *, reason: str = "No reason provided") -> None:
         await ctx.message.delete()
 
