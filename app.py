@@ -28,7 +28,7 @@ class CustomApp(commands.Bot):
         self.config = config()
 
     async def calculateLevelXp(self, level: int) -> int:
-        xp = (400 * level) + ((level * 250) * level)
+        xp = 100 * (level ** 2) + 50 * level #(400 * level) + ((level * 250) * level)
         return xp
 
     async def load_cogs(self) -> None:
