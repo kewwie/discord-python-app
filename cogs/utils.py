@@ -26,7 +26,7 @@ class Utils(commands.Cog, name="utils"):
         aliases=["member-count", "membercount"]
     )
     async def members(self, ctx: commands.Context) -> None:
-        await ctx.reply(f"This server has {format(ctx.guild.member_count, ",")} members")
+        await ctx.reply(f"This server has {format(ctx.guild.member_count, ',')} members")
 
     @commands.command(
         name="ping",
