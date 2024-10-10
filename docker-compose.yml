@@ -1,0 +1,11 @@
+version: "3"
+name: "coolbot"
+
+services:
+  pyapp:
+    container_name: pyapp
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: ["python", "app.py"]
