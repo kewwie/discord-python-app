@@ -157,7 +157,7 @@ class Levels(commands.Cog, name="levels"):
         if message.author == self.client.user or message.author.bot:
             return
         
-        newXp = random.randint(45, 55)
+        newXp = random.randint(95, 105)
 
         boosts = sorted(self.client.config["xpBoosts"], key=lambda x: x["multiplier"], reverse=True)
         for role in message.author.roles:

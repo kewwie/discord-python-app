@@ -17,9 +17,9 @@ class Moderation(commands.Cog, name="moderation"):
             roles = [role.id for role in ctx.author.roles]
             for perms in config()["permissions"]:
                 if perms["staff"] is True and perms[ctx.command.name] is True:
-                    if perms["id"] in roles:
+                    if perms["roleid"] in roles:
                         return True
-            raise commands.MissingRole()
+            raise commands.CheckFailure("You don't have the required permissions to run this command")
         return commands.check(predicate)
 
     @commands.command(
@@ -38,8 +38,8 @@ class Moderation(commands.Cog, name="moderation"):
             time = datetime.timedelta(hours=int(time[:-1]))
         elif time.endswith("d"):
             time = datetime.timedelta(days=int(time[:-1]))
-        elif time == "0":
-            time = None
+        elif time.isdigit():
+            time = datetime.timedelta(minutes=int(time))
         else:
             await ctx.reply("Invalid time format")
             return
@@ -47,20 +47,70 @@ class Moderation(commands.Cog, name="moderation"):
         if time and time.days > 27:
             await ctx.reply("You can't timeout for more than 27 days")
             return
+        
+        embed = discord.Embed(
+            title="User Timed Out",
+            color=discord.Color.red()
+        )
+        embed.add_field(name="User", value=member.mention, inline=False)
+        embed.add_field(name="Duration", value=f"{int(time.total_seconds() // 60)} minutes", inline=False)
+        embed.add_field(name="Reason", value=reason, inline=False)
+        embed.set_footer(text=f"Moderator: {ctx.author.name}")
 
         if time:
             time = discord.utils.utcnow() + time
-        
+            self.client.database.infractions.insert_one({
+                "guild_id": ctx.message.guild.id,
+                "user_id": member.id,
+                "user_name": member.name,
+                "mod_id": ctx.message.author.id,
+                "mod_name": ctx.message.author.name,
+                "reason": reason,
+                "created_at": datetime.datetime.now()
+            })
+
         await member.timeout(time, reason=reason)
         await ctx.message.delete()
 
-        self.client.database.infractions.insert_one({
-            "guild_id": ctx.message.guild.id,
-            "user_id": ctx.message.author.id,
-            "user_name": ctx.message.author.name,
-            "reason": reason,
-            "created_at": datetime.datetime.now()
+        await ctx.send(embed=embed)
+
+    @commands.command(
+        name="infractions",
+        description="Get the infractions of a user",
+        aliases=["infraction", "infs"]
+    )
+    @commands.bot_has_permissions(send_messages=True)
+    async def infractions(self, ctx: commands.Context, member: discord.Member = None) -> None:
+        if not member: member = ctx.author
+  
+        infractions = self.client.database.infractions.find({
+            "guild_id": ctx.guild.id,
+            "user_id": member.id
         })
+
+        if self.client.database.infractions.count_documents({
+            "guild_id": ctx.guild.id,
+            "user_id": member.id
+        }) == 0:
+            await ctx.send(f"**{member.name}** has no infractions")
+            return
+
+        embed = discord.Embed(
+            title=f"Infractions for {member.name}",
+            color=discord.Color.red()
+        )
+
+        infraction_number = 0
+        for infraction in infractions:
+            infraction_number += 1
+            expires_in = (infraction["created_at"] + datetime.timedelta(days=60)) - datetime.datetime.now()
+            embed.add_field(
+                name=f"Infraction {infraction_number} (Expires In {expires_in.days} days)",
+                value=f"**Reason:** {infraction['reason']}",
+                inline=False
+            )
+
+        await ctx.send(embed=embed)
 
     @commands.command(
         name="ban",
